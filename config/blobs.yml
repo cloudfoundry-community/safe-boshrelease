@@ -1,1 +1,13 @@
---- {}
+---
+consul/consul_0.7.0_linux_amd64.zip:
+  object_id: 542a845e-a01e-4742-a01a-a6be315847d2
+  sha: 32d5f51c35b75216cf73cabe0329239355dc4266
+  size: 6470848
+strongbox/strongbox:
+  object_id: 4606392e-549c-4cfc-ac86-fc3c29ba560c
+  sha: f80216d4d701ff0497e2a8b1931df63b5a5942f2
+  size: 6034071
+vault/vault_0.6.2_linux_amd64.zip:
+  object_id: fa71d1c1-c2ce-46a0-a271-0cab4956260c
+  sha: d6f841e2f980875fa36c02bf81f43691e314e360
+  size: 11242740
