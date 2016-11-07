@@ -1,0 +1,14 @@
+---
+# Include this in your `make_manifest` call to get toolbelt!
+#
+#    ./templates/make_manifest warden templates/toolbelt.yml
+#
+releases:
+  - name: toolbelt
+    version: latest
+
+jobs:
+  - name: vault
+    templates:
+      - { release: toolbelt, name: toolbelt }
+      - { release: toolbelt, name: toolbelt-quick }

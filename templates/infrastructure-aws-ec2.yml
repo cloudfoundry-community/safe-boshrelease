@@ -2,24 +2,22 @@ meta:
   environment: (( param "please set meta environment" ))
   dns_root: (( param "please set meta dns_root" ))
   security_groups: (( param "please set meta security_groups" ))
-  persistent_disk: 4096
 
   stemcell:
     name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
     version: latest
 
 jobs:
-  - name: just_install_packages
+  - name: vault
     networks:
-      - name: safe1
-    persistent_disk: (( grab meta.persistent_disk ))
+      - name: safe
 
 compilation:
   cloud_properties:
     instance_type: m3.medium
 
 resource_pools:
-  - name: small_z1
+  - name: small
     cloud_properties:
       instance_type: m3.medium
 
@@ -27,7 +25,7 @@ networks:
   - name: floating
     type: vip
     cloud_properties: {}
-  - name: safe1
+  - name: safe
     type: dynamic
     cloud_properties:
       security_groups: (( grab meta.security_groups ))

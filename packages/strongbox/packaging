@@ -1,0 +1,5 @@
+#!/bin/bashj
+set -eu
+
+mkdir -p ${BOSH_INSTALL_TARGET}/bin
+cp strongbox/strongbox ${BOSH_INSTALL_TARGET}/bin

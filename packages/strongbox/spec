@@ -1,0 +1,5 @@
+---
+name: strongbox
+dependencies: []
+files:
+  - strongbox/strongbox

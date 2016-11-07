@@ -1,0 +1,70 @@
+---
+name: vault
+packages:
+  - consul
+  - vault
+  - certifier
+  - strongbox
+
+templates:
+  bin/vault: bin/vault
+  bin/consul: bin/consul
+  bin/strongbox: bin/strongbox
+
+  bin/monit_debugger: bin/monit_debugger
+  data/properties.sh.erb: data/properties.sh
+  helpers/ctl_setup.sh: helpers/ctl_setup.sh
+  helpers/ctl_utils.sh: helpers/ctl_utils.sh
+
+  config/vault.conf: config/vault.conf
+  config/consul.conf: config/consul.conf
+
+  tls/vault/cert.pem: tls/vault/cert.pem
+  tls/vault/key.pem: tls/vault/key.pem
+
+  tls/peer/ca.pem: tls/peer/ca.pem
+  tls/peer/cert.pem: tls/peer/cert.pem
+  tls/peer/key.pem: tls/peer/key.pem
+
+properties:
+  safe.cluster_ips:
+    description: List of internal IP addresses of all members of the Vault Cluster
+
+  safe.port:
+    description: TCP port to bind the Vault on.  Defaults to 443.
+    default: 443
+
+  safe.tls.certificate:
+    description: TLS certificate to use for securing communnication with clients.
+  safe.tls.key:
+    description: TLS private key to use for securing communication with clients.
+
+  #############################################################
+  ##
+  ## PEER configuration is for consul-to-consul communication
+  ##      on the clustered Vault backend.  Sensible defaults
+  ##      with suitable auto-generation.
+  ##
+
+  safe.peer.port:
+    description: TCP port to use for peer-to-peer communication
+    default:     8100
+
+  safe.peer.tls.ca:
+    description: |
+      TLS CA certificate to use for verifying peer-to-peer communication.
+      If not provided, a self-signed certificate will be automatically generated and used.
+
+  safe.peer.tls.certificate:
+    description: |
+      TLS certificate to use for peer-to-peer communication.
+      If not provided, a self-signed certificate will be automatically generated and used.
+
+  safe.peer.tls.key:
+    description: |
+      TLS private key to use for peer-to-peer communication.
+      If not provided, a self-signed certificate will be automatically generated and used.
+
+  safe.peer.tls.verify:
+    description: Verify the TLS certificates presented by the Consul backend
+    default: true

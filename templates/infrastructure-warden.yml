@@ -5,28 +5,23 @@ meta:
     name: bosh-warden-boshlite-ubuntu-trusty-go_agent
     version: latest
 
-update:
-  canaries: 1
-  max_in_flight: 50
-  canary_watch_time: 1000-30000
-  update_watch_time: 1000-30000
-
 jobs:
-  - name: just_install_packages
+  - name: vault
     networks:
-      - name: safe1
+      - name: safe
+        static_ips: (( static_ips 0 1 2 ))
 
 compilation:
   cloud_properties:
     name: random
 
 resource_pools:
-  - name: small_z1
+  - name: small
     cloud_properties:
       name: random
 
 networks:
-- name: safe1
+- name: safe
   type: manual
   subnets:
   - range: 10.244.4.0/24

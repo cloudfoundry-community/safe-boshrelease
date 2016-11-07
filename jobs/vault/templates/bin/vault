@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -e # exit immediately if a simple command exits with a non-zero status
+set -u # report the usage of uninitialized variables
+
+# Setup env vars and folders for the webapp_ctl script
+source /var/vcap/jobs/vault/helpers/ctl_setup.sh vault
+
+export LANG=en_US.UTF-8
+
+case $1 in
+
+  start)
+    pid_guard $PIDFILE vault
+
+    # check for certificates
+    if ! (openssl x509 -noout -in ${JOB_DIR}/tls/vault/cert.pem &&
+          openssl rsa  -noout -in ${JOB_DIR}/tls/vault/key.pem); then
+      certify ${JOB_DIR}/tls/vault/
+    fi
+
+    setcap cap_ipc_lock=+ep $(readlink -nf /var/vcap/packages/vault/bin/vault)
+
+    # store pid in $PIDFILE
+    echo $$ > $PIDFILE
+
+    exec vault server \
+         -config=${JOB_DIR}/config/vault.conf \
+         >>$LOG_DIR/vault.log 2>&1
+    ;;
+
+  stop)
+    kill_and_wait $PIDFILE
+    ;;
+
+  *)
+    echo "Usage: ctl {start|stop}"
+    ;;
+
+esac
+exit 0

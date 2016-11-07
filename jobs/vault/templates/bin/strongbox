@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -e # exit immediately if a simple command exits with a non-zero status
+set -u # report the usage of uninitialized variables
+
+# Setup env vars and folders for the webapp_ctl script
+source /var/vcap/jobs/vault/helpers/ctl_setup.sh vault strongbox
+
+export LANG=en_US.UTF-8
+
+case $1 in
+
+  start)
+    pid_guard $PIDFILE strongbox
+
+    echo $$ > $PIDFILE
+    exec chpst -u vcap:vcap strongbox \
+         --bind :8484 \
+         --ca-certificate ${JOB_DIR}/tls/peer/ca.pem \
+         --consul https://127.0.0.1:8500
+         <% if !p('safe.peer.tls.verify') %>--no-verify <% end %>\
+         >>$LOG_DIR/strongbox.log 2>&1
+    ;;
+
+  stop)
+    kill_and_wait $PIDFILE
+    ;;
+
+  *)
+    echo "Usage: ctl {start|stop}"
+    ;;
+
+esac
+exit 0

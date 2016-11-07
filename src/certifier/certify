@@ -1,0 +1,150 @@
+#!/bin/bash
+
+#
+# certify - A small utility for generating self-signed certs
+#
+# author:  James Hunt <james@niftylogic.com>
+# created: 2016-11-06
+#
+
+# set up conf
+WORKDIR=$(mktemp -d)
+trap "rm -rf ${WORKDIR}" QUIT INT TERM EXIT
+cat >${WORKDIR}/openssl.conf <<EOF
+[ ca ]
+default_ca              = tmpca
+
+[ tmpca ]
+dir                     = ${WORKDIR}
+certs                   = \$dir/certsdb
+new_certs_dir           = \$certs
+database                = \$dir/index.txt
+certificate             = \$dir/ca/cert.pem
+private_key             = \$dir/ca/key.pem
+serial                  = \$dir/serial
+crldir                  = \$dir/crl
+crlnumber               = \$dir/crlnumber
+crl                     = \$crldir/crl.pem
+RANDFILE                = \$dir/private/.rand
+
+x509_extensions         = issued_cert
+copy_extensions         = copy
+
+name_opt                = ca_default
+cert_opt                = ca_default
+
+default_days            = 3650
+default_crl_days        = 30
+
+default_md              = sha256
+preserve                = no
+
+policy                  = policy_match
+
+[ policy_match ]
+organizationName        = match
+commonName              = supplied
+
+[ req ]
+default_bits            = 4096
+distinguished_name      = default_dn
+attributes              = req_attributes
+x509_extensions         = v3_ca
+req_extensions          = consul_ext
+
+string_mask             = nombstr
+
+[ default_dn ]
+0.organizationName              = Organization Name
+commonName                      = Common Name
+
+[ req_attributes ]
+
+[ issued_cert ]
+basicConstraints = CA:false
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+
+[ ca_cert ]
+basicConstraints = CA:true
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+
+[ vault_ext ]
+subjectAltName = @vault_sans
+
+[ consul_ext ]
+subjectAltName = @consul_sans
+
+[ vault_sans ]
+IP.1  = 127.0.0.1
+DNS.1 = *.vault.safe.internal
+
+[ consul_sans ]
+IP.1  = 127.0.0.1
+DNS.1 = *.consul.safe.internal
+
+[ v3_ca ]
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid:always,issuer:always
+basicConstraints = CA:true
+EOF
+mkdir -p ${WORKDIR}/ca \
+         ${WORKDIR}/certsdb \
+         ${WORKDIR}/crl \
+         ${WORKDIR}/private \
+         ${WORKDIR}/certs
+touch ${WORKDIR}/index.txt
+
+
+set -e
+echo Generating a new CA signing key
+openssl genrsa \
+  -out ${WORKDIR}/ca/key.pem \
+  4096
+
+echo Generating a new CA certificate signing request
+openssl req \
+  -new -batch -nodes -sha256 \
+  -subj /O=safe/CN=CA \
+  -out ${WORKDIR}/ca/req.pem \
+  -key ${WORKDIR}/ca/key.pem \
+  -config ${WORKDIR}/openssl.conf </dev/null
+
+echo Self-signing the CA certificate request
+openssl ca \
+  -create_serial -batch -selfsign \
+  -extensions ca_cert \
+  -in ${WORKDIR}/ca/req.pem \
+  -out ${WORKDIR}/ca/cert.pem \
+  -keyfile ${WORKDIR}/ca/key.pem \
+  -config ${WORKDIR}/openssl.conf </dev/null
+
+echo Generating a new RSA private key
+openssl genrsa \
+  -out ${WORKDIR}/key.pem \
+  4096
+
+echo Generating a new certificate signing request
+openssl req \
+  -new -batch -nodes -sha256 \
+  -key ${WORKDIR}/key.pem \
+  -out ${WORKDIR}/req.pem \
+  -subj /O=safe/CN=vault \
+  -config ${WORKDIR}/openssl.conf </dev/null
+
+echo Signing the certificate request with the CA signing key
+openssl ca \
+  -batch \
+  -extensions issued_cert \
+  -in ${WORKDIR}/req.pem \
+  -out ${WORKDIR}/cert.pem \
+  -cert ${WORKDIR}/ca/cert.pem \
+  -keyfile ${WORKDIR}/ca/key.pem \
+  -config ${WORKDIR}/openssl.conf </dev/null
+
+cd ${1:-$PWD}
+echo Installing the CA certificate, private key, and certificate in ${PWD}
+cp ${WORKDIR}/ca/cert.pem  ca.pem
+cp ${WORKDIR}/key.pem      key.pem
+cp ${WORKDIR}/cert.pem     cert.pem

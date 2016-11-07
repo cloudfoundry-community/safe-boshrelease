@@ -1,0 +1,5 @@
+---
+name: certifier
+dependencies: []
+files:
+  - certifier/certify

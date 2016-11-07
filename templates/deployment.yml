@@ -12,19 +12,19 @@ jobs: (( param "please set jobs" ))
 
 compilation:
   workers: 6
-  network: safe1
+  network: safe
   reuse_compilation_vms: true
   cloud_properties: (( param "please set compilation cloud properties" ))
 
 update:
   canaries: 1
   max_in_flight: 1
-  canary_watch_time: 30000-60000
-  update_watch_time: 5000-60000
+  canary_watch_time: 1000-120000
+  update_watch_time: 1000-120000
   serial: false
 
 resource_pools:
-  - name: small_z1
-    network: safe1
+  - name: small
+    network: safe
     stemcell: (( grab meta.stemcell ))
     cloud_properties: (( param "please set resource_pool cloud properties" ))

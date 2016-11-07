@@ -1,0 +1,52 @@
+#!/bin/bash
+
+set -e # exit immediately if a simple command exits with a non-zero status
+set -u # report the usage of uninitialized variables
+
+# Setup env vars and folders for the webapp_ctl script
+source /var/vcap/jobs/vault/helpers/ctl_setup.sh vault consul
+
+export LANG=en_US.UTF-8
+export GOMAXPROCS=2
+
+case $1 in
+
+  start)
+    pid_guard $PIDFILE consul
+
+    ulimit -v unlimited
+    setcap cap_net_bind_service=+ep $(readlink -nf /var/vcap/packages/consul/bin/consul)
+
+    # set up a place to store consul serf/raft data
+    mkdir -p ${STORE_DIR}/consul
+    chown vcap:vcap ${STORE_DIR}/consul
+
+    # check for certificates
+    if ! (openssl x509 -noout -in ${JOB_DIR}/tls/peer/ca.pem   && \
+          openssl x509 -noout -in ${JOB_DIR}/tls/peer/cert.pem && \
+          openssl rsa  -noout -in ${JOB_DIR}/tls/peer/key.pem); then
+      certify ${JOB_DIR}/tls/peer/
+    fi
+
+    chpst -u vcap:vcap consul agent \
+         -config-file ${JOB_DIR}/config/consul.conf \
+         -data-dir ${STORE_DIR}/consul \
+         -pid-file $PIDFILE \
+         >>$LOG_DIR/consul.log 2>&1
+    ;;
+
+  stop)
+    consul leave
+    ;;
+
+  reload)
+    echo "Reloading consul configuration..."
+    chpst -u vcap:vcap kill -SIGHUP $(cat $PIDFILE)
+    ;;
+
+  *)
+    echo "Usage: ctl {start|stop}"
+    ;;
+
+esac
+exit 0
