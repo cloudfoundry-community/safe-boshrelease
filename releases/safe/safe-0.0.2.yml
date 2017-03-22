@@ -1,0 +1,35 @@
+---
+packages:
+- name: certifier
+  version: 0fafc5cbcde2f1fa188341e3c512573603eb78d9
+  fingerprint: 0fafc5cbcde2f1fa188341e3c512573603eb78d9
+  sha1: 68da731ce8a4d9e5ccd67907fc9ebf1b2b664780
+  dependencies: []
+- name: consul
+  version: 136a9f9accb5c43d50537a7a2ed525bbe6de02bf
+  fingerprint: 136a9f9accb5c43d50537a7a2ed525bbe6de02bf
+  sha1: e7425d4812d44727553620e2b21b451a5a785eec
+  dependencies: []
+- name: strongbox
+  version: 7684f8d35ce03a0365713c9458f0056f786eb1a6
+  fingerprint: 7684f8d35ce03a0365713c9458f0056f786eb1a6
+  sha1: f18f384806e348904d667e1f2fb90d7b3df5f37b
+  dependencies: []
+- name: vault
+  version: ab5a2787b28b0bd0d264f8b766b0ba8ae370a89c
+  fingerprint: ab5a2787b28b0bd0d264f8b766b0ba8ae370a89c
+  sha1: 153f9d5a2f1c36eab7d974004bdfb5698caa6940
+  dependencies: []
+jobs:
+- name: vault
+  version: d334f22be1b9fdcd815eb8a70547ac67f8875da1
+  fingerprint: d334f22be1b9fdcd815eb8a70547ac67f8875da1
+  sha1: 6c17e7c2bbb7803f27d7212b314b5432c5554e4b
+license:
+  version: f0f6caa3fde87a6d14a5faaf366b31155ccf78a0
+  fingerprint: f0f6caa3fde87a6d14a5faaf366b31155ccf78a0
+  sha1: f7e32c353b3d3388f0b074b81f477ea9260717b8
+commit_hash: 7d763068
+uncommitted_changes: true
+name: safe
+version: 0.0.2
