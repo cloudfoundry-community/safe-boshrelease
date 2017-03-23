@@ -1,3 +1,9 @@
+# Improvements
+
+- Correct bootstrapping technique to improve stability of the
+  backing Consul cluster during rolling deploys, restarts, node
+  loss, bosh stops, etc.
+
 # Development
 
 - Fixed CI/CD pipeline URLs
