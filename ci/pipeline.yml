@@ -18,6 +18,8 @@ meta:
   url:      (( param "Please specify the full url of the target Concourse CI" ))
   pipeline: (( concat meta.name "-boshrelease" ))
 
+  image:    docker:///starkandwayne/concourse
+
   aws:
     bucket:     (( concat meta.pipeline "-pipeline" ))
     access_key: (( param "Please set your AWS Access Key ID for your pipeline S3 Bucket" ))
@@ -67,7 +69,7 @@ jobs:
       - task: testflight
         config:
           platform: linux
-          image: docker:///starkandwayne/concourse
+          image:    (( grab meta.image ))
           inputs:
             - { name: git }
           run:
@@ -91,19 +93,29 @@ jobs:
   - name: rc
     public: true
     plan:
-    - do:
-      - aggregate:
-          - { get: git,     trigger: true,  passed: [testflight] }
-          - { get: version, trigger: true, params: {pre: rc} }
-      - put: version
-        params: {file: version/number}
-      on_failure:
-        put: notify
-        params:
-          channel:  (( grab meta.slack.channel ))
-          username: (( grab meta.slack.username ))
-          icon_url: (( grab meta.slack.icon ))
-          text:    '(( concat meta.slack.fail_url " " meta.pipeline ": rc job failed" ))'
+      - do:
+        - aggregate:
+            - { get: git,     trigger: true,  passed: [testflight] }
+            - { get: version, trigger: true, params: {pre: rc} }
+        - task: check-release-notes
+          config:
+            platform: linux
+            image:    (( grab meta.image ))
+            inputs:
+              - name: git
+                path: git
+            run:
+              path: ./git/ci/scripts/rc
+              args: []
+        - put: version
+          params: {file: version/number}
+        on_failure:
+          put: notify
+          params:
+            channel:  (( grab meta.slack.channel ))
+            username: (( grab meta.slack.username ))
+            icon_url: (( grab meta.slack.icon ))
+            text:    '(( concat meta.slack.fail_url " " meta.pipeline ": rc job failed (did you write release notes?)" ))'
 
   - name: minor
     public: true
@@ -145,8 +157,8 @@ jobs:
       - name: release
         task: release
         config:
-          image: docker:///starkandwayne/concourse
           platform: linux
+          image:    (( grab meta.image ))
           inputs:
             - name: version
             - name: git
