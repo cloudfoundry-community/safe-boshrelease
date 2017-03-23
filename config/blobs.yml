@@ -4,8 +4,8 @@ consul/consul_0.7.0_linux_amd64.zip:
   sha: 32d5f51c35b75216cf73cabe0329239355dc4266
   size: 6470848
 strongbox/strongbox:
-  object_id: f88fa507-05c5-49af-aa96-378d1b986df2
-  sha: 2b24d2ca06c202d23a26d6cb22679a4600111143
+  object_id: be0b8e14-0eb5-422b-a8af-4807fd83904c
+  sha: ac38b23fad620f4d81779980a15b85e26237cd4f
   size: 6420275
 vault/vault_0.6.2_linux_amd64.zip:
   object_id: fa71d1c1-c2ce-46a0-a271-0cab4956260c
