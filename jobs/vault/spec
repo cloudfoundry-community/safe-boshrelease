@@ -45,6 +45,11 @@ properties:
   ##      on the clustered Vault backend.  Sensible defaults
   ##      with suitable auto-generation.
   ##
+  safe.peer.force_bind_default_ip:
+    description: |
+      Forces Consul agent to bind to the default ip address, necessary when using non
+      RFC1918 space in a private context.
+      default: false
 
   safe.peer.port:
     description: TCP port to use for peer-to-peer communication
