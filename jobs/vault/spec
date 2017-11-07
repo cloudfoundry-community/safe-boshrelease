@@ -49,7 +49,7 @@ properties:
     description: |
       Forces Consul agent to bind to the default ip address, necessary when using non
       RFC1918 space in a private context.
-      default: false
+    default: false
 
   safe.peer.port:
     description: TCP port to use for peer-to-peer communication
