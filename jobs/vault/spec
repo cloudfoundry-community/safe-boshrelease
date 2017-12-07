@@ -11,11 +11,6 @@ templates:
   bin/consul: bin/consul
   bin/strongbox: bin/strongbox
 
-  bin/monit_debugger: bin/monit_debugger
-  data/properties.sh.erb: data/properties.sh
-  helpers/ctl_setup.sh: helpers/ctl_setup.sh
-  helpers/ctl_utils.sh: helpers/ctl_utils.sh
-
   config/vault.conf: config/vault.conf
   config/consul.conf: config/consul.conf
 

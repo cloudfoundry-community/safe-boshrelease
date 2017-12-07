@@ -1,41 +1,37 @@
 #!/bin/bash
+set -eu
 
-set -e # exit immediately if a simple command exits with a non-zero status
-set -u # report the usage of uninitialized variables
-
-# Setup env vars and folders for the webapp_ctl script
-source /var/vcap/jobs/vault/helpers/ctl_setup.sh vault
-
-export LANG=en_US.UTF-8
+RUN_DIR=/var/vcap/sys/run/vault
+LOG_DIR=/var/vcap/sys/log/vault
+JOB_DIR=/var/vcap/jobs/vault
+PIDFILE=$RUN_DIR/vault.pid
+mkdir -p $LOG_DIR
+exec >>$LOG_DIR/vault.log 2>&1
 
 case $1 in
-
   start)
-    pid_guard $PIDFILE vault
-
     # check for certificates
     if ! (openssl x509 -noout -in ${JOB_DIR}/tls/vault/cert.pem &&
           openssl rsa  -noout -in ${JOB_DIR}/tls/vault/key.pem); then
-      certify ${JOB_DIR}/tls/vault/
+      /var/vcap/packages/certifier/bin/certify ${JOB_DIR}/tls/vault/
     fi
 
     setcap cap_ipc_lock=+ep $(readlink -nf /var/vcap/packages/vault/bin/vault)
 
-    # store pid in $PIDFILE
     echo $$ > $PIDFILE
-
-    exec vault server \
-         -config=${JOB_DIR}/config/vault.conf \
-         >>$LOG_DIR/vault.log 2>&1
+    exec /var/vcap/packages/vault/bin/vault server \
+         -config=${JOB_DIR}/config/vault.conf
     ;;
 
   stop)
-    kill_and_wait $PIDFILE
+    PID=$(head -1 $PIDFILE)
+    kill $PID
+    while [ -e /proc/$PID ]; do sleep 0.1; done
+    rm -f $PIDFILE
     ;;
 
   *)
-    echo "Usage: ctl {start|stop}"
+    echo "Usage: vault {start|stop}"
     ;;
-
 esac
 exit 0

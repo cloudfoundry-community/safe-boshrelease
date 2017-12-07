@@ -1,17 +1,17 @@
 check process vault
-  with pidfile /var/vcap/sys/run/vault/vault.pid
-  start program "/var/vcap/jobs/vault/bin/monit_debugger vault_ctl '/var/vcap/jobs/vault/bin/vault start'"
-  stop program "/var/vcap/jobs/vault/bin/monit_debugger vault_ctl '/var/vcap/jobs/vault/bin/vault stop'"
+  with pidfile  /var/vcap/sys/run/vault/vault.pid
+  start program "/var/vcap/jobs/vault/bin/vault start"
+  stop  program "/var/vcap/jobs/vault/bin/vault stop"
   group vcap
 
 check process consul
-  with pidfile /var/vcap/sys/run/vault/consul.pid
-  start program "/var/vcap/jobs/vault/bin/monit_debugger consul_ctl '/var/vcap/jobs/vault/bin/consul start'"
-  stop program "/var/vcap/jobs/vault/bin/monit_debugger consul_ctl '/var/vcap/jobs/vault/bin/consul stop'"
+  with pidfile  /var/vcap/sys/run/vault/consul.pid
+  start program "/var/vcap/jobs/vault/bin/consul start"
+  stop  program "/var/vcap/jobs/vault/bin/consul stop"
   group vcap
 
 check process strongbox
-  with pidfile /var/vcap/sys/run/vault/strongbox.pid
-  start program "/var/vcap/jobs/vault/bin/monit_debugger strongbox_ctl '/var/vcap/jobs/vault/bin/strongbox start'"
-  stop program "/var/vcap/jobs/vault/bin/monit_debugger strongbox_ctl '/var/vcap/jobs/vault/bin/strongbox stop'"
+  with pidfile  /var/vcap/sys/run/vault/strongbox.pid
+  start program "/var/vcap/jobs/vault/bin/strongbox start"
+  stop  program "/var/vcap/jobs/vault/bin/strongbox stop"
   group vcap
