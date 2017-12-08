@@ -21,10 +21,14 @@ templates:
   tls/peer/cert.pem: tls/peer/cert.pem
   tls/peer/key.pem: tls/peer/key.pem
 
-properties:
-  safe.cluster_ips:
-    description: List of internal IP addresses of all members of the Vault Cluster
+provides:
+  - name: safe-consul
+    type: cluster
+consumes:
+  - name: safe-consul
+    type: cluster
 
+properties:
   safe.port:
     description: TCP port to bind the Vault on.  Defaults to 443.
     default: 443
