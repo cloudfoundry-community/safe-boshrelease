@@ -1,0 +1,40 @@
+name: safe
+
+instance_groups:
+  - name:      vault
+    instances: 3
+    azs:       [z1]
+    vm_type:   default
+    stemcell:  default
+
+    # vault requires a persistent disk, otherwise
+    # you will lose all of your stored secrets.
+    persistent_disk_type: default
+
+    networks:
+      - name: default
+
+    jobs:
+      - name: vault
+        release: safe
+        properties:
+          safe:
+            peer:
+              tls:
+                verify: false
+
+
+update:
+  canaries:          0
+  max_in_flight:     1
+  serial:            true
+  canary_watch_time: 1000-120000
+  update_watch_time: 1000-120000
+
+stemcells:
+- alias:   default
+  os:      ubuntu-trusty
+  version: latest
+
+releases:
+  - { name: safe, version: latest }
