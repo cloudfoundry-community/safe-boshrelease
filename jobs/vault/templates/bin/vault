@@ -16,11 +16,14 @@ case $1 in
       /var/vcap/packages/certifier/bin/certify ${JOB_DIR}/tls/vault/
     fi
 
-    setcap cap_ipc_lock=+ep $(readlink -nf /var/vcap/packages/vault/bin/vault)
+    bin=$(readlink -nf /var/vcap/packages/vault/bin/vault)
+    setcap cap_ipc_lock=+ep         $bin
+    setcap cap_net_bind_service=+ep $bin
 
     echo $$ > $PIDFILE
-    exec /var/vcap/packages/vault/bin/vault server \
-         -config=${JOB_DIR}/config/vault.conf
+    exec chpst -u vcap:vcap \
+      /var/vcap/packages/vault/bin/vault server \
+        -config=${JOB_DIR}/config/vault.conf
     ;;
 
   stop)
