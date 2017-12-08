@@ -20,6 +20,14 @@ case $1 in
     setcap cap_ipc_lock=+ep         $bin
     setcap cap_net_bind_service=+ep $bin
 
+    if chpst -u vcap:vcap /var/vcap/packages/vault/bin/canimlock; then
+      sed -i -e 's/^disable_mlock/#disable_mlock/' \
+        $JOB_DIR/config/vault.conf
+    else
+      sed -i -e 's/^#disable_mlock/disable_mlock/' \
+        $JOB_DIR/config/vault.conf
+    fi
+
     echo $$ > $PIDFILE
     exec chpst -u vcap:vcap \
       /var/vcap/packages/vault/bin/vault server \
