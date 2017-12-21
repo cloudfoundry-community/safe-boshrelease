@@ -1,0 +1,5 @@
+check process broker
+  with pidfile  /var/vcap/sys/run/vault/broker.pid
+  start program "/var/vcap/jobs/broker/bin/broker start"
+  stop program  "/var/vcap/jobs/broker/bin/broker stop"
+  group vcap

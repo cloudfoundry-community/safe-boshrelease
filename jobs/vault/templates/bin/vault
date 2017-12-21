@@ -5,7 +5,7 @@ RUN_DIR=/var/vcap/sys/run/vault
 LOG_DIR=/var/vcap/sys/log/vault
 JOB_DIR=/var/vcap/jobs/vault
 PIDFILE=$RUN_DIR/vault.pid
-mkdir -p $LOG_DIR
+mkdir -p $LOG_DIR $RUN_DIR
 exec >>$LOG_DIR/vault.log 2>&1
 
 case $1 in

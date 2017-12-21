@@ -1,0 +1,56 @@
+---
+name: broker
+packages:
+  - vault-broker
+
+templates:
+  bin/broker: bin/broker
+
+provides:
+  - name: servicebroker
+    type: servicebroker
+    properties:
+      - port
+      - username
+      - password
+
+consumes:
+  - name: vault
+    type: cluster
+
+properties:
+  guid:
+    description: A unique GUID to use for this service broker inside of Cloud Foundry.
+    default: ''
+
+  port:
+    description: Binding port for broker API
+    default: 5000
+
+  username:
+    description: The username for authenticating interaction with Cloud Foundry.
+    default: vault
+  password:
+    description: The password for authenticating interaction with Cloud Foundry.
+    default: vault
+
+  service.name:
+    description: Name of the service, as shown in the marketplace.
+    default: vault
+  service.description:
+    description: A description of the service, also for the marketplace.
+    default: Vault Secure Storage
+  service.tags:
+    description: A list of tags to apply to the service.
+    default: []
+
+  backend.address:
+    description: The address to use when accessing the Vault to set up new policies and manage provisioned services.
+  backend.token:
+    description: The token that the service broker will use when interacting with the Vault.
+  backend.advertise:
+    description: The address to hand out to bound applications, along with their credentials.  Defaults to `backend.address`.
+    default: ''
+  backend.skip_verify:
+    description: Instructs the broker to ignore SSL/TLS certificate problems (self-signedness, domain mismatch, expiration, etc.). Set this at your own risk.
+    default: false

@@ -1,0 +1,57 @@
+#!/bin/bash
+set -eu
+
+RUN_DIR=/var/vcap/sys/run/vault
+LOG_DIR=/var/vcap/sys/log/vault
+JOB_DIR=/var/vcap/jobs/broker
+PIDFILE=$RUN_DIR/broker.pid
+mkdir -p $LOG_DIR $RUN_DIR
+exec >>$LOG_DIR/broker.log 2>&1
+
+case $1 in
+  start)
+    if [[ -f $PIDFILE ]]; then
+      PID=$(head -1 $PIDFILE)
+      test -n "$PID" && test -e /proc/$PID && exit 1
+      rm -f $PIDFILE
+    fi
+
+    export BROKER_GUID="<%= p('guid') %>"
+
+    export AUTH_USERNAME="<%= p('username') %>"
+    export AUTH_PASSWORD="<%= p('password') %>"
+
+    export SERVICE_NAME="<%= p('service.name') %>"
+    export SERVICE_DESC="<%= p('service.description') %>"
+    export SERVICE_TAGS="<%= p('service.tags', []).join(', ') %>"
+
+    export PORT=<%= p("port") %>
+
+    <% if_p('backend.address') do |address| %>
+    export VAULT_ADDR="<%= address %>"
+    <% end.else do %>
+      VAULT_IP=<%= link('vault').instances[0].address %>
+      VAULT_PORT=<%= link('vault').p('safe.port', 443) %>
+      export VAULT_ADDR="https://${VAULT_IP}:${VAULT_PORT}"
+    <% end %>
+    export VAULT_ADVERTISE_ADDR="<%= p('backend.advertise') %>"
+    export VAULT_TOKEN="<%= p('backend.token') %>"
+    export VAULT_SKIP_VERIFY="<%= p('backend.skip_verify', false) ? 'yes' : '' %>"
+
+    echo $$ > $PIDFILE
+    exec chpst -u vcap:vcap \
+      /var/vcap/packages/vault-broker/bin/vault-broker
+    ;;
+
+  stop)
+    PID=$(head -1 $PIDFILE)
+    kill $PID
+    while [ -e /proc/$PID ]; do sleep 0.1; done
+    rm -f $PIDFILE
+    ;;
+
+  *)
+    echo "Usage: broker {start|stop}"
+    ;;
+esac
+exit 0

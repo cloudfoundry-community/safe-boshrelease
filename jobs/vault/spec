@@ -22,10 +22,10 @@ templates:
   tls/peer/key.pem: tls/peer/key.pem
 
 provides:
-  - name: safe-consul
+  - name: vault
     type: cluster
 consumes:
-  - name: safe-consul
+  - name: vault
     type: cluster
 
 properties:

@@ -1,0 +1,4 @@
+---
+name: vault-broker
+files:
+  - vault-broker/vault-broker

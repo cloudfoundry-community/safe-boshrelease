@@ -1,0 +1,6 @@
+#!/bin/bash
+set -eu
+
+mkdir $BOSH_INSTALL_TARGET/bin
+cp -a vault-broker/vault-broker $BOSH_INSTALL_TARGET/bin
+chmod 0755 $BOSH_INSTALL_TARGET/bin/vault-broker
