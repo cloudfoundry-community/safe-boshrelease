@@ -85,3 +85,19 @@
     version: 3.3.1
     url: https://github.com/cloudfoundry-community/broker-registrar-boshrelease/releases/download/v3.3.1/broker-registrar-3.3.1.tgz
     sha1: c95283460a4f962cee1cacabb7333774783a24e9
+
+- type: replace
+  path: /variables/-
+  value:
+    name: cf-api-url
+
+- type: replace
+  path: /variables/-
+  value:
+    name: vault-broker-guid
+
+- type: replace
+  path: /variables/-
+  value:
+    name: vault-broker-password
+    type: password
