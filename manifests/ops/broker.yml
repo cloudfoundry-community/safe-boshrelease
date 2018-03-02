@@ -49,8 +49,8 @@
           name: vault
         cf:
           api_url: ((cf-api-url))
-          username: ((cf-admin-username))
-          password: ((cf-admin-password))
+          username: ((cf-username))
+          password: ((cf-password))
           skip_ssl_validation: ((cf-skip-ssl-validation))
 
 - type: replace
@@ -74,8 +74,8 @@
           name: vault
         cf:
           api_url: ((cf-api-url))
-          username: ((cf-admin-username))
-          password: ((cf-admin-password))
+          username: ((cf-username))
+          password: ((cf-password))
           skip_ssl_validation: ((cf-skip-ssl-validation))
 
 - type: replace
@@ -90,6 +90,26 @@
   path: /variables/-
   value:
     name: cf-api-url
+
+- type: replace
+  path: /variables/-
+  value:
+    name: cf-username
+
+- type: replace
+  path: /variables/-
+  value:
+    name: cf-password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: cf-skip-ssl-validation
+
+- type: replace
+  path: /variables/-
+  value:
+    name: vault-token
 
 - type: replace
   path: /variables/-
