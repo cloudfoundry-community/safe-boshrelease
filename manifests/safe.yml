@@ -38,3 +38,6 @@ stemcells:
 
 releases:
   - { name: safe, version: latest }
+
+# just in case the ops files need them...
+variables: []
