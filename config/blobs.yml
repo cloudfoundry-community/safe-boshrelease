@@ -7,9 +7,9 @@ strongbox/strongbox:
   object_id: 44281efb-8fa1-4be6-b375-26500640aef8
   sha: 9e39da610484c80243c1898dd6f47de782af9e7e
 vault-broker/vault-broker:
-  size: 6621968
-  object_id: 6d2dc492-643d-472c-4347-e9e44e952131
-  sha: f675d555a9c4645d9c3f5f7801b11f3e33f10229
+  size: 7100965
+  object_id: 2681be0d-76e5-4bac-46ef-1e27e292f5e2
+  sha: d63d30ea944a084eca81cfefe0967a7eba82f8d0
 vault/vault_0.9.3_linux_amd64.zip:
   size: 18162528
   object_id: cabdf1ac-e80e-465d-6368-82709f1c6c38
