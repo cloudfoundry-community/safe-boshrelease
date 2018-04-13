@@ -1,3 +1,4 @@
+# Upgrades
 
-# vault-broker
-Bumped  to v0.0.2
+The vault-broker component has been upgrade to 0.0.2, which takes
+care of some issues with Vault HTTP response handling.
