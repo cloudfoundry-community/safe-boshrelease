@@ -1,7 +1,6 @@
-consul/consul_0.7.0_linux_amd64.zip:
-  size: 6470848
-  object_id: 542a845e-a01e-4742-a01a-a6be315847d2
-  sha: 32d5f51c35b75216cf73cabe0329239355dc4266
+consul/consul_0.7.1_linux_amd64.zip:
+  size: 7359222
+  sha: c2be9eebc40bf552e260c7dd31a77cb60474712f
 strongbox/strongbox:
   size: 6420275
   object_id: 44281efb-8fa1-4be6-b375-26500640aef8
