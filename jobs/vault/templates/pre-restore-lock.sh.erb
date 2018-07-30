@@ -1,0 +1,6 @@
+/var/vcap/bosh/bin/monit stop vault
+while /var/vcap/bosh/bin/monit summary |grep -q Process.*vault.*pending; do
+  sleep 1
+  /var/vcap/bosh/bin/monit 
+done
+

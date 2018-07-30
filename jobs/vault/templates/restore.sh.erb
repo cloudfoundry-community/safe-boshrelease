@@ -1,0 +1,12 @@
+#!/bin/bash
+export CONSUL_HTTP_SSL=true
+export CONSUL_HTTP_SSL_VERIFY=false
+
+BBR_ARTIFACT_FILE_PATH="${BBR_ARTIFACT_DIRECTORY}/consul.snap"
+
+<% if spec.bootstrap %>
+/var/vcap/packages/consul/bin/consul snapshot restore "${BBR_ARTIFACT_FILE_PATH}"
+<% else %>
+# /var/vcap/packages/consul/bin/consul snapshot restore "${BBR_ARTIFACT_FILE_PATH}"
+exit 0 # Only the first node in cluster will run the restore...
+<% end %>

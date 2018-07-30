@@ -1,0 +1,7 @@
+#!/bin/bash
+export CONSUL_HTTP_SSL=true
+export CONSUL_HTTP_SSL_VERIFY=false
+
+BBR_ARTIFACT_FILE_PATH="${BBR_ARTIFACT_DIRECTORY}/consul.snap"
+
+/var/vcap/packages/consul/bin/consul snapshot save "${BBR_ARTIFACT_FILE_PATH}"

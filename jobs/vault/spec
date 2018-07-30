@@ -21,6 +21,11 @@ templates:
   tls/peer/cert.pem: tls/peer/cert.pem
   tls/peer/key.pem: tls/peer/key.pem
 
+  pre-restore-lock.sh.erb: bin/bbr/pre-restore-lock
+  post-restore-unlock.sh.erb: bin/bbr/post-restore-unlock
+  backup.sh.erb: bin/bbr/backup
+  restore.sh.erb: bin/bbr/restore
+
 provides:
   - name: vault
     type: cluster
