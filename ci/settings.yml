@@ -7,6 +7,12 @@ meta:
 
   initial_version: 0.0.1
 
+  manifest:
+    path: (( concat "manifests/" meta.name ".yml" ))
+    vars: "--- {}"
+    vars-pr: (( grab meta.manifest.vars ))
+
+
   shout:
     username: ((shout.username))
     password: ((shout.password))
@@ -21,6 +27,7 @@ meta:
     username: ((thunder-dome.username))
     password: ((thunder-dome.password))
     cacert:   ((thunder-dome.ca-certificate))
+    deployment-pr: (( concat meta.name "-testflight-pr" ))
 
   aws:
     access_key: ((cfcommunity.access))
@@ -48,6 +55,88 @@ groups:
       - vault-broker
 
 jobs:
+  - name: testflight-pr
+    public: true
+    serial: true
+    plan:
+    - name: main
+      do:
+      - name: get
+        aggregate:
+          - { get: git-pull-requests, trigger: true, version: every }
+      - name: pending-status
+        put: git-pull-requests
+        params:
+          path: git-pull-requests
+          status: pending
+      - name: testflights
+        aggregate:
+        - name: testflight
+          task: testflight
+          config:
+            platform: linux
+            image_resource:
+              type: docker-image
+              source:
+                repository: (( grab meta.image.name ))
+                tag:        (( grab meta.image.tag ))
+            inputs:
+              - { name: git-pull-requests }
+            run:
+              path: ./git-pull-requests/ci/scripts/testflight
+              args: []
+            params:
+              REPO_ROOT:            git-pull-requests
+              BOSH_ENVIRONMENT:     (( grab meta.bosh-lite.target ))
+              BOSH_CA_CERT:         (( grab meta.bosh-lite.cacert ))
+              BOSH_CLIENT:          (( grab meta.bosh-lite.username ))
+              BOSH_CLIENT_SECRET:   (( grab meta.bosh-lite.password ))
+              BOSH_DEPLOYMENT:      (( grab meta.bosh-lite.deployment-pr ))
+              TEST_ERRANDS:         (( grab meta.test-errands || meta.test-errand || ~ ))
+              AWS_ACCESS_KEY:       (( grab meta.aws.access_key ))
+              AWS_SECRET_KEY:       (( grab meta.aws.secret_key ))
+              MANIFEST_PATH:        (( grab meta.manifest.path ))
+              MANIFEST_VARS:        (( grab meta.manifest.vars-pr ))
+          on_success:
+            put: git-pull-requests
+            params:
+              path: git-pull-requests
+              status: success
+          on_failure:
+            put: git-pull-requests
+            params:
+              path: git-pull-requests
+              status: failure
+      - name: pr-success-message
+        task: pr-success-message
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: (( grab meta.image.name ))
+              tag:        (( grab meta.image.tag ))
+          inputs:
+            - { name: git-pull-requests }
+          outputs:
+            - { name: message }
+          run:
+            path: sh
+            args:
+            - -ce
+            - |
+              cd git-pull-requests
+              pr_url=$(git config --get pullrequest.url)
+              cd -
+              echo "<${pr_url}|Pull request passed testflight> Merge when ready: ${pr_url}" > message/body
+      on_success:
+        put: notify
+        params:
+          topic: (( concat meta.shout.topic "-$BUILD_JOB_NAME" ))
+          file: message/body
+          ok: yes
+          link: (( grab meta.shout.links.pipeline ))
+
   - name: strongbox # {{{
     public: true
     plan:
@@ -194,3 +283,17 @@ resources:
       repository:   vault-broker
       access_token: (( grab meta.github.access_token ))
   # }}}
+  - name: git-pull-requests
+    type: pull-request
+    source:
+      access_token: (( grab meta.github.access_token ))
+      private_key:  (( grab meta.github.private_key ))
+      repo:         (( concat meta.github.owner "/" meta.github.repo ))
+      base: (( grab meta.github.branch ))
+
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: jtarchie/pr
+

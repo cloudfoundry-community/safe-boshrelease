@@ -67,6 +67,7 @@ meta:
 groups:
   - name: (( grab meta.pipeline ))
     jobs:
+      - testflight-pr
       - testflight
       - rc
       - shipit
