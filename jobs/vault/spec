@@ -12,7 +12,7 @@ templates:
   bin/strongbox: bin/strongbox
 
   config/vault.conf: config/vault.conf
-  config/consul.conf: config/consul.conf
+  config/consul.json.erb: config/consul.json
 
   tls/vault/cert.pem: tls/vault/cert.pem
   tls/vault/key.pem: tls/vault/key.pem
