@@ -2,6 +2,7 @@
 set -eu
 
 VERSION=1.3.0
+
 cd consul
 unzip consul_${VERSION}_linux_amd64.zip
 mkdir -p  ${BOSH_INSTALL_TARGET}/bin
