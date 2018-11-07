@@ -50,7 +50,7 @@ meta:
     deployment: (( concat meta.name "-testflight" ))
 
   shout:
-    topic:    (( concat meta.name "-pipeline" ))
+    topic:    (( concat meta.pipeline "-pipeline" ))
     url:      (( param "Please specify the Shout! endpoint" ))
     username: (( param "Please specify the Shout! operations username" ))
     password: (( param "Please specify the Shout! operations password" ))
