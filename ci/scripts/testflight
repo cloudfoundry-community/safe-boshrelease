@@ -51,11 +51,12 @@ mkdir -p tmp
 
 # $MANIFEST_VARS can either be "key: value" or "key=value"
 # and will be converted to "key: value" YAML
-echo "${MANIFEST_VARS:-"{} ---"}" | sed -e "s/ *= */: /g" > tmp/vars.yml
+echo "${MANIFEST_VARS:-"--- {}"}" | sed -e "s/ *= */: /g" > tmp/vars.yml
 if [[ ! -z $DEBUG ]]; then
 	echo "Variables passed to deployment manifest:"
 	cat tmp/vars.yml
 fi
+	cat tmp/vars.yml
 # convert YAML to JSON to check YAML validity
 spruce json tmp/vars.yml > /dev/null
 
