@@ -53,6 +53,10 @@ You have been automatically authenticated to the Vault with the
 initial root token.  Be safe out there!
 ```
 
+**Note**: You will need safe v1.0.0 or higher, since this BOSH
+release now ships with Vault 1.0.2, and `safe init` from earlier
+versions are known to not work.
+
 That's all there is to it!
 
 ## Using the Vault Service Broker
