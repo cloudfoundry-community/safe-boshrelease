@@ -9,6 +9,6 @@ pushd mlock
 popd
 
 pushd vault
-  unzip vault_0.9.3_linux_amd64.zip
+  unzip vault_1.0.2_linux_amd64.zip
   cp -a vault $BOSH_INSTALL_TARGET/bin
 popd
