@@ -16,7 +16,7 @@ meta:
   shout:
     username: ((shout.username))
     password: ((shout.password))
-    url: https://10.200.131.1:7109
+    url: http://10.200.131.1:7109
 
   git:
     email: ci@starkandwayne.com
