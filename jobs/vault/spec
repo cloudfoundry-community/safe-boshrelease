@@ -72,3 +72,7 @@ properties:
   safe.peer.tls.verify:
     description: Verify the TLS certificates presented by the Consul backend
     default: true
+
+  safe.ui:
+    description: If set to true, the Vault UI will be enabled.
+    default: false
