@@ -8,8 +8,8 @@ strongbox/strongbox:
   sha: 9e39da610484c80243c1898dd6f47de782af9e7e
 vault-broker/vault-broker:
   size: 7100965
-  object_id: b0f1e7f4-8a82-4007-4c97-1df1784cc1e4
-  sha: d63d30ea944a084eca81cfefe0967a7eba82f8d0
+  object_id: be179dcc-9a0f-415b-4710-287218c2decd
+  sha: sha256:d792b09622a3fa96477268495e5313acf204a98d9bebf95b1516c467d2c454c7
 vault/vault_1.0.2_linux_amd64.zip:
   size: 35862496
   object_id: 39048a22-de69-4536-56fd-afd45fc94745
