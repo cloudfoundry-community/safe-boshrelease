@@ -1,15 +1,8 @@
+# Software Updates
 
-# strongbox
-Bumped  to v0.0.4
+ - Updated `Vault` to v1.4.0
 
-# vault-broker
+# Bugfixes
 
-- Bumped vault-broker to v0.0.2
-
-# vault-broker
-
-- Bumped vault-broker to v0.0.2
-
-# strongbox
-
-- Bumped strongbox to v0.0.4
+- Resolves [#31](https://github.com/cloudfoundry-community/safe-boshrelease/issues/31) - Consul skip-tls-verify logic now functions properly
+- Change default self signed cert length to 2yrs in accordance with new requirements
