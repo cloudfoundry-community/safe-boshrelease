@@ -37,7 +37,7 @@ stemcells:
   version: latest
 
 releases:
-- name: safe
-  version: 0.2.1
-  url: https://github.com/cloudfoundry-community/safe-boshrelease/releases/download/v0.2.1/safe-0.2.1.tgz
-  sha1: 7da89b2a385c3dfe3dc647844a61e8b531e6e54b
+- name:    safe
+  version: 0.3.0
+  url:     https://github.com/cloudfoundry-community/safe-boshrelease/releases/download/v0.3.0/safe-0.3.0.tgz
+  sha1:    ee009da0398ec1688ccfe830d68957be49571b0a
