@@ -8,6 +8,8 @@ PIDFILE=$RUN_DIR/vault.pid
 mkdir -p $LOG_DIR $RUN_DIR
 exec >>$LOG_DIR/vault.log 2>&1
 
+ulimit -l unlimited
+
 case $1 in
   start)
     if [[ -f $PIDFILE ]]; then
