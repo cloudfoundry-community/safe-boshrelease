@@ -2,6 +2,10 @@ consul/consul_0.7.0_linux_amd64.zip:
   size: 6470848
   object_id: 542a845e-a01e-4742-a01a-a6be315847d2
   sha: 32d5f51c35b75216cf73cabe0329239355dc4266
+consul/consul_1.11.3_linux_amd64.zip:
+  size: 38363933
+  object_id: cda2b610-97f9-423e-74f1-999943f2afb4
+  sha: sha256:782b8bc0bc94e6d9f0dceb3272fca0e629d8d9d0f039b1a7749e3218f6f2424c
 strongbox/strongbox:
   size: 6420275
   object_id: bcc9bf2a-e374-46a8-7052-f5553c9187b6
