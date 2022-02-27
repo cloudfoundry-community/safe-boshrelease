@@ -38,7 +38,7 @@ case $1 in
     GOMAXPROCS=2 \
     chpst -u vcap:vcap \
       /var/vcap/packages/consul/bin/consul agent \
-         -config-file ${JOB_DIR}/config/consul.conf \
+         -config-file ${JOB_DIR}/config/consul.json \
          -data-dir ${DAT_DIR}/consul \
          -pid-file $PIDFILE
     ;;

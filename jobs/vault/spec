@@ -11,8 +11,8 @@ templates:
   bin/consul: bin/consul
   bin/strongbox: bin/strongbox
 
-  config/vault.conf: config/vault.conf
-  config/consul.conf: config/consul.conf
+  config/vault.conf: config/vault.config
+  config/consul.conf: config/consul.json
 
   tls/vault/cert.pem: tls/vault/cert.pem
   tls/vault/key.pem: tls/vault/key.pem
