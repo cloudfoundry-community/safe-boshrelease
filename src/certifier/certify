@@ -112,13 +112,19 @@ openssl req \
   -config ${WORKDIR}/openssl.conf </dev/null
 
 echo Self-signing the CA certificate request
+rm -f ${WORKDIR}/ca/cert.pem.txt 
 openssl ca \
   -create_serial -batch -selfsign \
-  -extensions ca_cert \
+  -notext -extensions ca_cert \
   -in ${WORKDIR}/ca/req.pem \
   -out ${WORKDIR}/ca/cert.pem \
   -keyfile ${WORKDIR}/ca/key.pem \
   -config ${WORKDIR}/openssl.conf </dev/null
+
+openssl x509 \
+  -text \
+  -in ${WORKDIR}/ca/cert.pem \
+  -noout > ${WORKDIR}/ca/cert.pem.txt 2>&1 </dev/null
 
 echo Generating a new RSA private key
 openssl genrsa \
@@ -134,8 +140,10 @@ openssl req \
   -config ${WORKDIR}/openssl.conf </dev/null
 
 echo Signing the certificate request with the CA signing key
+rm -f ${WORKDIR}/cert.pem.txt 
 openssl ca \
   -batch \
+  -notext \
   -extensions issued_cert \
   -in ${WORKDIR}/req.pem \
   -out ${WORKDIR}/cert.pem \
@@ -143,8 +151,15 @@ openssl ca \
   -keyfile ${WORKDIR}/ca/key.pem \
   -config ${WORKDIR}/openssl.conf </dev/null
 
+openssl x509 \
+  -text \
+  -in ${WORKDIR}/cert.pem \
+  -noout >${WORKDIR}/cert.pem.txt 2>&1 </dev/null
+
 cd ${1:-$PWD}
 echo Installing the CA certificate, private key, and certificate in ${PWD}
-cp ${WORKDIR}/ca/cert.pem  ca.pem
-cp ${WORKDIR}/key.pem      key.pem
-cp ${WORKDIR}/cert.pem     cert.pem
+cp ${WORKDIR}/ca/cert.pem.txt  ca.pem.txt
+cp ${WORKDIR}/ca/cert.pem      ca.pem
+cp ${WORKDIR}/key.pem          key.pem
+cp ${WORKDIR}/cert.pem.txt     cert.pem.txt
+cp ${WORKDIR}/cert.pem         cert.pem
