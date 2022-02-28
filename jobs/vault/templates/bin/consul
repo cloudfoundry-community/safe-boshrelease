@@ -45,6 +45,7 @@ case $1 in
 
   stop)
     /var/vcap/packages/consul/bin/consul leave
+    # kill -INT $(cat $PIDFILE)
     ;;
 
   reload)
