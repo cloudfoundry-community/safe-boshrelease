@@ -1,6 +1,8 @@
 #!/bin/bashj
 set -eu
 
+# https://github.com/jhunt/go-strongbox
+#
 mkdir -p ${BOSH_INSTALL_TARGET}/bin
 cp strongbox/strongbox ${BOSH_INSTALL_TARGET}/bin
 chmod 755 ${BOSH_INSTALL_TARGET}/bin/strongbox

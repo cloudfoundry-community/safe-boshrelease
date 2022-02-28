@@ -13,7 +13,7 @@ happy, great.  I wanted something simpler and more opinionated.
 ## How Does This Relate To The `safe` CLI for Vault?
 
 [safe][safe] has some built-in support for this particular BOSH
-release, by way of a thing called `strongbox`.  Primarily, the
+release, by way of a thing called [`strongbox`][strongbox].  Primarily, the
 extra handy `safe unseal` and `safe seal` commands work _only_
 with this BOSH release.
 
@@ -108,3 +108,4 @@ start up properly, and the deployment as a whole will fail.
 
 [safe]: https://github.com/starkandwayne/safe
 [sb]:   https://github.com/cloudfoundry-community/vault-broker
+[strongbox]: https://github.com/jhunt/go-strongbox
