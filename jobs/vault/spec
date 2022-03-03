@@ -10,6 +10,7 @@ templates:
   bin/vault: bin/vault
   bin/consul: bin/consul
   bin/strongbox: bin/strongbox
+  bin/pre-start: bin/pre-start
 
   config/vault.conf: config/vault.config
   config/consul.conf: config/consul.json
@@ -72,10 +73,6 @@ properties:
   safe.peer.tls.verify:
     description: Verify the TLS certificates presented by the Consul backend
     default: true
-
-  safe.peer.tls.self_signed:
-    description: Indicate whether the certificates are self signed
-    default: false
 
   safe.ui:
     description: If set to true, the Vault UI will be enabled.

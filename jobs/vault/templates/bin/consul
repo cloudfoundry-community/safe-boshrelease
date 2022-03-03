@@ -27,13 +27,6 @@ case $1 in
     mkdir -p ${DAT_DIR}/consul
     chown vcap:vcap ${DAT_DIR}/consul
 
-    # check for certificates
-    if ! (openssl x509 -noout -in ${JOB_DIR}/tls/peer/ca.pem   && \
-          openssl x509 -noout -in ${JOB_DIR}/tls/peer/cert.pem && \
-          openssl rsa  -noout -in ${JOB_DIR}/tls/peer/key.pem); then
-      /var/vcap/packages/certifier/bin/certify ${JOB_DIR}/tls/peer/
-    fi
-
     # run consul
     GOMAXPROCS=2 \
     chpst -u vcap:vcap \
