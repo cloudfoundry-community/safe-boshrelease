@@ -1,0 +1,20 @@
+#!/bin/bash
+set -eu
+
+# If are no supplied certificates generate self signed certificates
+
+VAULT_JOB_DIR=/var/vcap/jobs/vault
+CONSUL_JOB_DIR=/var/vcap/jobs/consul
+
+ # check for vault certificates
+if ! (openssl x509 -noout -in ${VAULT_JOB_DIR}/tls/vault/cert.pem &&
+      openssl rsa  -noout -in ${VAULT_JOB_DIR}/tls/vault/key.pem); then
+  /var/vcap/packages/certifier/bin/certify ${VAULT_JOB_DIR}/tls/vault/
+fi
+
+# check for consul certificates
+if ! (openssl x509 -noout -in ${CONSUL_JOB_DIR}/tls/peer/ca.pem   && \
+      openssl x509 -noout -in ${CONSUL_JOB_DIR}/tls/peer/cert.pem && \
+      openssl rsa  -noout -in ${CONSUL_JOB_DIR}/tls/peer/key.pem); then
+  /var/vcap/packages/certifier/bin/certify ${CONSUL_JOB_DIR}/tls/peer/
+fi

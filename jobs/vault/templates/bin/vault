@@ -18,12 +18,6 @@ case $1 in
       rm -f $PIDFILE
     fi
 
-    # check for certificates
-    if ! (openssl x509 -noout -in ${JOB_DIR}/tls/vault/cert.pem &&
-          openssl rsa  -noout -in ${JOB_DIR}/tls/vault/key.pem); then
-      /var/vcap/packages/certifier/bin/certify ${JOB_DIR}/tls/vault/
-    fi
-
     bin=$(readlink -nf /var/vcap/packages/vault/bin/vault)
     setcap cap_ipc_lock=+ep         $bin
     setcap cap_net_bind_service=+ep $bin
