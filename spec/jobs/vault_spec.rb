@@ -40,6 +40,24 @@ describe 'vault' do
           expect(rendered_template).to include('tls_skip_verify = "true"')
         end
       end
+
+      context 'safe.peer.tls.use_self_signed_certs = true' do
+        it 'does not include cert and key files' do
+          properties.merge!({
+            'safe' => { 
+              'peer' => { 
+                'tls' => { 
+                  'use_self_signed_certs' => true
+                }
+              }
+            }
+          })
+          rendered_template = template.render(properties)
+
+          expect(rendered_template).not_to include('tls_cert_file   = "/var/vcap/jobs/vault/tls/peer/cert.pem"')
+          expect(rendered_template).not_to include('tls_key_file    = "/var/vcap/jobs/vault/tls/peer/key.pem"')
+        end
+      end
     end
   end
 end
