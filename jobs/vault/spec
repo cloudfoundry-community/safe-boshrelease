@@ -74,6 +74,10 @@ properties:
     description: Verify the TLS certificates presented by the Consul backend
     default: true
 
+  safe.peer.tls.use_self_signed_certs:
+    description: Indicate whether we generate self-signed peer certificates
+    default: false
+
   safe.ui:
     description: If set to true, the Vault UI will be enabled.
     default: false
