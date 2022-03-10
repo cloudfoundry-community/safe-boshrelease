@@ -156,6 +156,7 @@ openssl x509 \
   -in ${WORKDIR}/cert.pem \
   -noout >${WORKDIR}/cert.pem.txt 2>&1 </dev/null
 
+mkdir -p ${1:-$PWD}
 cd ${1:-$PWD}
 echo Installing the CA certificate, private key, and certificate in ${PWD}
 cp ${WORKDIR}/ca/cert.pem.txt  ca.pem.txt

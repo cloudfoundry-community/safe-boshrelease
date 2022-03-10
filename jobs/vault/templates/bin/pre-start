@@ -13,8 +13,10 @@ if ! (openssl x509 -noout -in ${VAULT_JOB_DIR}/tls/vault/cert.pem &&
 fi
 
 # check for consul certificates
-if ! (openssl x509 -noout -in ${CONSUL_JOB_DIR}/tls/peer/ca.pem   && \
-      openssl x509 -noout -in ${CONSUL_JOB_DIR}/tls/peer/cert.pem && \
-      openssl rsa  -noout -in ${CONSUL_JOB_DIR}/tls/peer/key.pem); then
-  /var/vcap/packages/certifier/bin/certify ${CONSUL_JOB_DIR}/tls/peer/
+if ! (openssl x509 -noout -in ${VAULT_JOB_DIR}/tls/peer/ca.pem   && \
+      openssl x509 -noout -in ${VAULT_JOB_DIR}/tls/peer/cert.pem && \
+      openssl rsa  -noout -in ${VAULT_JOB_DIR}/tls/peer/key.pem); then
+  /var/vcap/packages/certifier/bin/certify ${VAULT_JOB_DIR}/tls/peer/
 fi
+
+exit 0
