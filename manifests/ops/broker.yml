@@ -82,9 +82,9 @@
   path: /releases/-
   value:
     name: broker-registrar
-    version: 3.3.1
-    url: https://github.com/cloudfoundry-community/broker-registrar-boshrelease/releases/download/v3.3.1/broker-registrar-3.3.1.tgz
-    sha1: c95283460a4f962cee1cacabb7333774783a24e9
+    version: 3.6.0
+    url: https://github.com/cloudfoundry-community/broker-registrar-boshrelease/releases/download/v3.6.0/broker-registrar-3.6.0.tgz
+    sha1: 9581f764b666925a6be5793d5bd31cc118da845b
 
 - type: replace
   path: /variables/-
