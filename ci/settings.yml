@@ -2,34 +2,34 @@
 meta:
   name:    safe
   release: Safe (Vault) BOSH Release
-  target:  pipes
-  url:     https://pipes.starkandwayne.com
+  target:  pipes/cloudfoundry-community
+  url:     https://pipes.scalecf.net
 
   initial_version: 0.0.1
 
   git:
-    name:  Stark & Wayne CI Bot
-    email: ci@starkandwayne.com
+    name:  Cloudfoundry Community CI Bot
+    email: ci@loudfoundry-community.org
 
   bosh-lite:
-    target:   https://10.128.4.73:25555
+    target:   ((thunder-dome.url))
     username: ((thunder-dome.username))
     password: ((thunder-dome.password))
     cacert:   ((thunder-dome.ca-certificate))
 
   aws:
-    access_key: ((cfcommunity.access))
-    secret_key: ((cfcommunity.secret))
+    access_key: ((aws.access_key_id))
+    secret_key: ((aws.secret_access_key))
 
   github:
     owner:        cloudfoundry-community
     repo:         safe-boshrelease
-    branch:       master
-    private_key:  ((starkandwayne-bot-github.private-key))
-    access_token: ((starkandwayne-bot-github.access-token))
+    branch:       develop
+    private_key:  ((github.private-key))
+    access_token: ((github.access-token))
 
   shout:
-    url:      http://10.128.4.65:7109
+    url:      ((shout.url))
     username: ((shout.username))
     password: ((shout.password))
 

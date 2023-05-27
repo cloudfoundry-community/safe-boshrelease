@@ -25,7 +25,7 @@ meta:
     name:   (( param "Please provide the git name for automated commits" ))
 
   image:
-    name: starkandwayne/concourse
+    name: genesiscommunity/concourse
     tag: latest
 
   aws:
@@ -38,7 +38,7 @@ meta:
     uri:          (( concat "git@github.com:" meta.github.owner "/" meta.github.repo ))
     owner:        (( param "Please specify the name of the user / organization that owns the Github repository" ))
     repo:         (( param "Please specify the name of the Github repository" ))
-    branch:       master
+    branch:       develop
     private_key:  (( param "Please generate an SSH Deployment Key for this repo and specify it here" ))
     access_token: (( param "Please generate a Personal Access Token to be used for creating github releases (do you have a ci-bot?)" ))
 
@@ -91,7 +91,7 @@ jobs:
           config:
             platform: linux
             image_resource:
-              type: docker-image
+              type: registry-image
               source:
                 repository: (( grab meta.image.name ))
                 tag:        (( grab meta.image.tag ))
@@ -138,7 +138,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source:
               repository: (( grab meta.image.name ))
               tag:        (( grab meta.image.tag ))
@@ -259,7 +259,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source:
               repository: (( grab meta.image.name ))
               tag:        (( grab meta.image.tag ))
@@ -330,9 +330,9 @@ jobs:
 
 resource_types:
   - name: shout-notification
-    type: docker-image
+    type: registry-image
     source:
-      repository: huntprod/shout-resource
+      repository: registry.ops.scalecf.net/genesis-community/shout-resource
 
 resources:
   - name: git
