@@ -11,7 +11,7 @@ popd
 # blob comes from https://releases.hashicorp.com/vault/ 
 # source comes from https://github.com/hashicorp/vault
 
-BLOB_VAULT_VERSION=1.9.3
+BLOB_VAULT_VERSION=1.14.7
 
 pushd vault
   unzip vault_${BLOB_VAULT_VERSION}_linux_amd64.zip
