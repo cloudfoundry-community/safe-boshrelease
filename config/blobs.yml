@@ -1,9 +1,6 @@
-consul/consul_0.7.0_linux_amd64.zip:
-  size: 6470848
-  object_id: 542a845e-a01e-4742-a01a-a6be315847d2
-  sha: 32d5f51c35b75216cf73cabe0329239355dc4266
 consul/consul_1.16.4_linux_amd64.zip:
   size: 62815405
+  object_id: bf7ccdea-53e5-44a1-50ee-a3cb17b3df00
   sha: sha256:3914db6bedcd1bd3b261eae0452be4de504bd0b3dcf31a3826f1c77d46c213e6
 strongbox/strongbox:
   size: 6420275
@@ -13,14 +10,7 @@ vault-broker/vault-broker:
   size: 7100965
   object_id: 3c1b937d-fac5-4f3c-68d9-97aec8c84703
   sha: sha256:d792b09622a3fa96477268495e5313acf204a98d9bebf95b1516c467d2c454c7
-vault/vault_1.4.0_linux_amd64.zip:
-  size: 48230599
-  object_id: 3f76bc75-05e0-4774-6bea-30a5f9336a45
-  sha: sha256:8f739c4850bab35e971e27c8120908f48f247b07717d19aabad1110e9966cded
-vault/vault_1.9.3_linux_amd64.zip:
-  size: 68962699
-  object_id: 59e92d64-8c28-4939-7825-e346b931073d
-  sha: sha256:16059f245fb4df2800fe6ba320ea66aba9c2615348e37bcfd42754591a528639
 vault/vault_1.14.7_linux_amd64.zip:
   size: 129977089
+  object_id: e4974be1-2817-47c3-673d-60cd90568dc0
   sha: sha256:df22e021a91252b573e7f251a6790ee7bebba2ef3131bd8aa5953fb657c3c3b1
