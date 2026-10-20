@@ -39,7 +39,7 @@ case $1 in
     export VAULT_SKIP_VERIFY="<%= p('backend.skip_verify', false) ? 'yes' : '' %>"
 
     echo $$ > $PIDFILE
-    exec chpst -u vcap:vcap \
+    exec setpriv --reuid=vcap --regid=vcap --groups=vcap -- \
       /var/vcap/packages/vault-broker/bin/vault-broker
     ;;
 

@@ -29,7 +29,7 @@ case $1 in
 
     # run consul
     GOMAXPROCS=2 \
-    chpst -u vcap:vcap \
+    setpriv --reuid=vcap --regid=vcap --groups=vcap -- \
       /var/vcap/packages/consul/bin/consul agent \
          -config-file ${JOB_DIR}/config/consul.json \
          -data-dir ${DAT_DIR}/consul \

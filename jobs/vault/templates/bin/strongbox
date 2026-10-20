@@ -17,7 +17,7 @@ case $1 in
     fi
 
     echo $$ > $PIDFILE
-    exec chpst -u vcap:vcap \
+    exec setpriv --reuid=vcap --regid=vcap --groups=vcap -- \
       /var/vcap/packages/strongbox/bin/strongbox \
          --bind :8484 \
          --ca-certificate ${JOB_DIR}/tls/peer/ca.pem \
