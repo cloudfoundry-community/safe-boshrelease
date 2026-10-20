@@ -6,6 +6,10 @@ LOG_DIR=/var/vcap/sys/log/vault
 JOB_DIR=/var/vcap/jobs/vault
 DAT_DIR=/var/vcap/store/vault
 PIDFILE=$RUN_DIR/consul.pid
+# Seconds to wait after SIGINT, then after SIGKILL.  monit's stop timeout
+# for consul (jobs/vault/monit) must cover both.
+STOP_TIMEOUT=30
+KILL_TIMEOUT=10
 mkdir -p $LOG_DIR
 exec >>$LOG_DIR/consul.log 2>&1
 
@@ -37,8 +41,44 @@ case $1 in
     ;;
 
   stop)
-    # /var/vcap/packages/consul/bin/consul leave
-    kill -INT $(cat $PIDFILE)
+    # SIGINT with skip_leave_on_interrupt shuts the server down without
+    # leaving raft (see config/consul.json).  Wait for it to close its raft
+    # and serf stores before monit reports it stopped, because BOSH may
+    # unmount the persistent disk or delete the VM right after.
+    if [[ ! -f $PIDFILE ]]; then
+      echo "No pidfile at $PIDFILE; consul is not running"
+      exit 0
+    fi
+    PID=$(head -1 $PIDFILE)
+    if [[ -z "$PID" ]] || [[ ! -e /proc/$PID ]]; then
+      echo "consul (pid ${PID:-unknown}) is not running"
+      rm -f $PIDFILE
+      exit 0
+    fi
+
+    echo "Stopping consul (pid $PID) with SIGINT, waiting up to ${STOP_TIMEOUT}s"
+    kill -INT $PID || true
+    waited=0
+    while [ -e /proc/$PID ] && [ $waited -lt $(( STOP_TIMEOUT * 10 )) ]; do
+      sleep 0.1
+      waited=$(( waited + 1 ))
+    done
+
+    if [ -e /proc/$PID ]; then
+      echo "consul (pid $PID) still running after ${STOP_TIMEOUT}s; sending SIGKILL"
+      kill -KILL $PID || true
+      waited=0
+      while [ -e /proc/$PID ] && [ $waited -lt $(( KILL_TIMEOUT * 10 )) ]; do
+        sleep 0.1
+        waited=$(( waited + 1 ))
+      done
+      if [ -e /proc/$PID ]; then
+        echo "consul (pid $PID) survived SIGKILL for ${KILL_TIMEOUT}s"
+        exit 1
+      fi
+    fi
+    echo "consul (pid $PID) stopped"
+    rm -f $PIDFILE
     ;;
 
   reload)

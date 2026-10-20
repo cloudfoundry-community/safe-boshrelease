@@ -7,7 +7,7 @@ check process vault
 check process consul
   with pidfile  /var/vcap/sys/run/vault/consul.pid
   start program "/var/vcap/jobs/vault/bin/consul start"
-  stop  program "/var/vcap/jobs/vault/bin/consul stop"
+  stop  program "/var/vcap/jobs/vault/bin/consul stop" with timeout 60 seconds
   group vcap
 
 check process strongbox

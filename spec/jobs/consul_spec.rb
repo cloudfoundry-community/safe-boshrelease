@@ -36,6 +36,14 @@ describe 'consul' do
         expect(rendered_template['tls']['defaults']['verify_outgoing']).to eq(false)
         expect(rendered_template['tls']['defaults']['cert_file']).to eq('/var/vcap/jobs/vault/tls/peer/cert.pem')
       end
+
+      it 'keeps a stopping server in raft on SIGINT and SIGTERM' do
+        properties.merge!({ 'safe' => { 'peer' => { 'tls' => { 'verify' => false } } } })
+        rendered_template = JSON.parse(template.render(properties, consumes: links))
+
+        expect(rendered_template['leave_on_terminate']).to eq(false)
+        expect(rendered_template['skip_leave_on_interrupt']).to eq(true)
+      end
     end
   end
 end
