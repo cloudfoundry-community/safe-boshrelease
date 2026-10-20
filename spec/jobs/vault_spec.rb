@@ -15,6 +15,7 @@ describe 'vault' do
         rendered_template = template.render(properties)
 
         expect(rendered_template).to include('storage "consul" {')
+        expect(rendered_template).to include('address = "127.0.0.1:8500"')
         expect(rendered_template).not_to include('backend "consul"')
         expect(rendered_template).to include('tls_skip_verify = "false"')
         expect(rendered_template).to include('tls_cert_file   = "/var/vcap/jobs/vault/tls/peer/cert.pem"')
