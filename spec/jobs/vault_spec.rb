@@ -14,6 +14,8 @@ describe 'vault' do
       it 'creates a default template' do
         rendered_template = template.render(properties)
 
+        expect(rendered_template).to include('storage "consul" {')
+        expect(rendered_template).not_to include('backend "consul"')
         expect(rendered_template).to include('tls_skip_verify = "false"')
         expect(rendered_template).to include('tls_cert_file   = "/var/vcap/jobs/vault/tls/peer/cert.pem"')
         expect(rendered_template).to include('tls_key_file    = "/var/vcap/jobs/vault/tls/peer/key.pem"')

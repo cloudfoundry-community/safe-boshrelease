@@ -30,6 +30,11 @@ describe 'consul' do
         rendered_template = JSON.parse(template.render(properties, consumes: links))
 
         expect(rendered_template['datacenter']).to eq('vault')
+        expect(rendered_template['retry_join']).to eq(['vault.address'])
+        expect(rendered_template).not_to have_key('start_join')
+        expect(rendered_template).not_to have_key('ca_file')
+        expect(rendered_template['tls']['defaults']['verify_outgoing']).to eq(false)
+        expect(rendered_template['tls']['defaults']['cert_file']).to eq('/var/vcap/jobs/vault/tls/peer/cert.pem')
       end
     end
   end
