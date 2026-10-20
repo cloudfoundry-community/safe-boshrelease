@@ -11,6 +11,7 @@ templates:
   bin/consul: bin/consul
   bin/strongbox: bin/strongbox
   bin/pre-start: bin/pre-start
+  bin/post-start: bin/post-start
 
   config/vault.conf: config/vault.config
   config/consul.conf: config/consul.json
@@ -77,6 +78,22 @@ properties:
   safe.peer.tls.use_self_signed_certs:
     description: Indicate whether we generate self-signed peer certificates
     default: false
+
+  safe.peer.post_start.timeout:
+    description: |
+      Seconds the post-start script waits for the local Consul server to become a
+      healthy raft voter in a healthy cluster with one voter per vault instance and
+      a leader.  When the wait runs out, post-start fails and BOSH halts the deploy
+      at this instance, before it stops the next Consul server.  A brand-new
+      cluster passes while servers that hold no raft data wait for their peers.
+      A stopped cluster that already holds data cannot elect a leader one server at
+      a time, so start every instance at once, for example with
+      `bosh start --canaries=0 --max-in-flight=100%`.
+    default: 600
+
+  safe.peer.post_start.interval:
+    description: Seconds between Consul health polls in the post-start script.
+    default: 5
 
   safe.ui:
     description: If set to true, the Vault UI will be enabled.

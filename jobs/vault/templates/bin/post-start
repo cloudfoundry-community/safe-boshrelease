@@ -1,0 +1,235 @@
+#!/bin/bash
+set -eu
+<%
+  positive_seconds = lambda do |name|
+    value = p(name)
+    seconds = Integer(value.to_s, 10) rescue nil
+    if seconds.nil? or seconds <= 0
+      raise "`#{name}` must be a positive whole number of seconds, got #{value.inspect}"
+    end
+    seconds
+  end
+
+  gate_timeout  = positive_seconds.call('safe.peer.post_start.timeout')
+  gate_interval = positive_seconds.call('safe.peer.post_start.interval')
+  if gate_interval > gate_timeout
+    raise "`safe.peer.post_start.interval` (#{gate_interval}) must not exceed `safe.peer.post_start.timeout` (#{gate_timeout})"
+  end
+
+  # The same peer list that drives retry_join and bootstrap_expect in consul.json.
+  expected_servers = link('vault').instances.size
+%>
+# Holds BOSH at this instance until the local Consul server is a healthy raft
+# voter in a healthy cluster of the expected size.  Exiting non-zero halts the
+# deploy here, before BOSH stops the next Consul server and takes the cluster
+# below quorum.
+
+JOB_DIR=/var/vcap/jobs/vault
+DAT_DIR=/var/vcap/store/vault
+CONSUL=/var/vcap/packages/consul/bin/consul
+NODE_ID_FILE=${DAT_DIR}/consul/node-id
+
+EXPECTED_SERVERS=<%= expected_servers %>
+GATE_TIMEOUT=<%= gate_timeout %>
+GATE_INTERVAL=<%= gate_interval %>
+# Each consul CLI call is bounded so a hung agent cannot stall the loop.
+CALL_TIMEOUT=20
+# A crash-looping agent can answer one poll between restarts.  Requiring
+# several consecutive passes means the answer has to hold for a while.
+REQUIRED_PASSES=3
+
+# Consul serves HTTPS only (ports.http is -1), with the peer certificates.
+export CONSUL_HTTP_ADDR=https://127.0.0.1:8500
+export CONSUL_CACERT=${JOB_DIR}/tls/peer/ca.pem
+<% if !p('safe.peer.tls.use_self_signed_certs') -%>
+export CONSUL_CLIENT_CERT=${JOB_DIR}/tls/peer/cert.pem
+export CONSUL_CLIENT_KEY=${JOB_DIR}/tls/peer/key.pem
+<% end -%>
+<% if !p('safe.peer.tls.verify') -%>
+export CONSUL_HTTP_SSL_VERIFY=false
+<% end -%>
+
+# BOSH keeps post-start stdout in post-start.stdout.log; keep everything there.
+exec 2>&1
+
+log() {
+  echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) post-start: $*"
+}
+
+consul_cli() {
+  timeout ${CALL_TIMEOUT} ${CONSUL} "$@"
+}
+
+# Prints "healthy|leader|voters|self_voter|self_status|self_healthy" from the
+# text form of `consul operator autopilot state`.  Top-level lines start in
+# column 0; voter IDs, server IDs, and per-server fields are indented.
+parse_autopilot() {
+  awk -v self="$1" '
+    /^[^ \t]/ {
+      section = $0; sub(/:.*/, "", section)
+      value = $0;   sub(/^[^:]*:[ \t]*/, "", value)
+      if (section == "Healthy") healthy = value
+      if (section == "Leader")  leader  = value
+      next
+    }
+    section == "Voters" && NF == 1 && $1 !~ /:/ {
+      voters++
+      if ($1 == self) self_voter = 1
+      next
+    }
+    section == "Servers" && NF == 1 && $1 !~ /:/ {
+      server = $1
+      next
+    }
+    section == "Servers" && server == self {
+      key = $0;   sub(/^[ \t]+/, "", key)
+      value = key; sub(/:.*/, "", key); sub(/^[^:]*:[ \t]*/, "", value)
+      if (key == "Status")  self_status  = value
+      if (key == "Healthy") self_healthy = value
+    }
+    END {
+      printf "%s|%s|%d|%d|%s|%s\n", healthy, leader, voters, self_voter, self_status, self_healthy
+    }
+  '
+}
+
+# Raft last_log_index of the local server, from `consul info`.
+parse_last_log_index() {
+  awk '
+    /^[^ \t]/ { in_raft = ($1 == "raft:"); next }
+    in_raft && $1 == "last_log_index" { print $3; found = 1; exit }
+    END { if (!found) print "" }
+  '
+}
+
+# Number of alive server members in the LAN gossip pool, from `consul members`.
+count_alive_servers() {
+  awk '
+    NR == 1 {
+      for (i = 1; i <= NF; i++) {
+        if ($i == "Status") status_col = i
+        if ($i == "Type")   type_col   = i
+      }
+      next
+    }
+    status_col && type_col && $status_col == "alive" && $type_col == "server" { n++ }
+    END { print n + 0 }
+  '
+}
+
+show_cluster() {
+  log "--- consul operator raft list-peers ---"
+  consul_cli operator raft list-peers || true
+  log "--- consul operator autopilot state ---"
+  if [[ -n "${AUTOPILOT_OUT:-}" ]]; then
+    echo "${AUTOPILOT_OUT}"
+  fi
+  log "---"
+}
+
+# Sets VERDICT to pass, bootstrap, or wait, and REASON to a one-line summary.
+evaluate() {
+  VERDICT=wait
+  AUTOPILOT_OUT=
+
+  if [[ ! -s ${NODE_ID_FILE} ]]; then
+    REASON="no node ID at ${NODE_ID_FILE} yet; the agent has not started"
+    return
+  fi
+  local self
+  self=$(head -1 ${NODE_ID_FILE} | tr -d '[:space:]')
+
+  local out
+  if out=$(consul_cli operator autopilot state 2>&1); then
+    AUTOPILOT_OUT=$out
+    local healthy leader voters self_voter self_status self_healthy
+    IFS='|' read -r healthy leader voters self_voter self_status self_healthy \
+      < <(echo "$out" | parse_autopilot "$self")
+
+    if [[ -z "$leader" ]]; then
+      REASON="autopilot reports no leader"
+    elif [[ "$self_voter" != "1" ]]; then
+      REASON="this server (${self}) is not a voter yet, status '${self_status:-absent}'; autopilot holds a rejoining server as a non-voter until it is stable"
+    elif [[ "$self_status" != "leader" && "$self_status" != "voter" ]]; then
+      REASON="this server (${self}) has autopilot status '${self_status:-absent}'"
+    elif [[ "$self_healthy" != "true" ]]; then
+      REASON="this server (${self}) is a voter but autopilot reports it unhealthy"
+    elif [[ "$voters" != "${EXPECTED_SERVERS}" ]]; then
+      REASON="raft has ${voters} voters, expected ${EXPECTED_SERVERS}"
+    elif [[ "$healthy" != "true" ]]; then
+      REASON="autopilot reports the cluster unhealthy; another server is failed or behind"
+    else
+      VERDICT=pass
+      REASON="leader present, ${voters}/${EXPECTED_SERVERS} voters, this server is a healthy ${self_status}, cluster healthy"
+    fi
+    return
+  fi
+  AUTOPILOT_OUT=$out
+
+  # No answer from the leader.  The one case where waiting cannot succeed is a
+  # brand-new cluster: BOSH starts servers one at a time, and bootstrap_expect
+  # holds the election until every server is up.  A server that has never
+  # appended a raft log entry holds no data and is not counted in any quorum,
+  # so letting BOSH start the next one is safe.  A server with raft data never
+  # takes this path: if it cannot see a leader, the deploy must stop here.
+  local info last_index alive
+  if ! info=$(consul_cli info 2>&1); then
+    REASON="autopilot state failed ($(echo "$out" | tail -1)); consul info failed ($(echo "$info" | tail -1))"
+    return
+  fi
+  last_index=$(echo "$info" | parse_last_log_index)
+  if [[ "$last_index" != "0" ]]; then
+    REASON="autopilot state failed ($(echo "$out" | tail -1)); local raft last_log_index is '${last_index:-unknown}'"
+    return
+  fi
+  local members
+  if ! members=$(consul_cli members 2>&1); then
+    REASON="autopilot state failed ($(echo "$out" | tail -1)); consul members failed ($(echo "$members" | tail -1))"
+    return
+  fi
+  alive=$(echo "$members" | count_alive_servers)
+  if (( alive >= EXPECTED_SERVERS )); then
+    REASON="new cluster, all ${alive}/${EXPECTED_SERVERS} servers alive, waiting for the bootstrap election"
+    return
+  fi
+  VERDICT=bootstrap
+  REASON="new cluster, ${alive}/${EXPECTED_SERVERS} servers alive and no raft data on this server; bootstrap_expect waits for the rest"
+}
+
+log "waiting up to ${GATE_TIMEOUT}s for a healthy ${EXPECTED_SERVERS}-voter Consul cluster with this server as a voter (polling every ${GATE_INTERVAL}s, ${REQUIRED_PASSES} consecutive passes)"
+
+start=$(date +%s)
+passes=0
+last_reason=
+while true; do
+  evaluate
+
+  if [[ "$REASON" != "$last_reason" ]]; then
+    log "${VERDICT}: ${REASON}"
+    show_cluster
+    last_reason=$REASON
+  fi
+
+  if [[ "$VERDICT" == "wait" ]]; then
+    passes=0
+  else
+    passes=$(( passes + 1 ))
+    if (( passes >= REQUIRED_PASSES )); then
+      if [[ "$VERDICT" == "pass" ]]; then
+        log "Consul raft gate passed: ${REASON}"
+      else
+        log "Consul raft gate passed for bootstrap: ${REASON}"
+      fi
+      exit 0
+    fi
+  fi
+
+  elapsed=$(( $(date +%s) - start ))
+  if (( elapsed >= GATE_TIMEOUT )); then
+    log "Consul raft gate FAILED after ${elapsed}s: ${REASON}"
+    show_cluster
+    log "halting the deploy at this instance; check /var/vcap/sys/log/vault/consul.log on this VM"
+    exit 1
+  fi
+  sleep ${GATE_INTERVAL}
+done
