@@ -59,6 +59,24 @@ versions are known to not work.
 
 That's all there is to it!
 
+## Vault 2 and Consul 2
+
+This release ships Vault 2.2.0 and Consul 2.0.4. Both are released under the Business Source License 1.1 rather than the Mozilla Public License that covered the versions this release shipped before (Vault 1.14.7 and Consul 1.16.4). Review the BUSL terms for your use before you deploy.
+
+The job templates no longer use `chpst`, so the release runs on stemcells that do not ship runit, such as Ubuntu 26.04 (`resolute`). The vault, consul, strongbox, and broker control scripts drop privileges with `setpriv`, which comes from `util-linux` on the stemcell.
+
+Vault stores its data in Consul, so the order of an upgrade matters.
+
+- Take a Consul snapshot (`consul snapshot save`) and keep a copy of the Vault unseal keys before you deploy. A Vault that a 2.x server has unsealed cannot be rolled back to 1.14.x.
+
+- Consul documents that a standard upgrade should jump at most two major versions, and that a cluster far behind should step through intermediate releases. Going from 1.16 to 2.0 is well outside that guidance, so plan the upgrade either as a series of deployments through intermediate Consul releases (1.18, 1.20, 1.22, and then 2.0) or as a fresh cluster that you restore from a snapshot.
+
+- Update one node at a time and wait for `consul operator raft list-peers` to show a leader and three voters before you continue. The release deploys serially, and `bootstrap_expect` stays at the cluster size.
+
+- Consul servers that already have a `raft.db` file keep the BoltDB log store. Only new servers start on the WAL log store, which became the default in Consul 1.20.
+
+The Consul agent configuration now uses the `tls.defaults` block in place of the top-level `ca_file`, `cert_file`, `key_file`, `verify_incoming`, and `verify_outgoing` settings, and no longer sets `start_join` because `retry_join` already covers it. The Vault configuration uses the `storage` stanza in place of the older `backend` name.
+
 ## Using the Vault Service Broker
 
 If you want to deploy the [Vault Service Broker][sb] via BOSH, you
